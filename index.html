@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Accelerometer Data</title>
+    <style>
+        #centertext {
+            color: black;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #red {
+            background-color: red;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+        }
+        #green {
+            background-color: green;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+        }
+        #accelerometerpermissions {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+
+<div id="green"></div>
+<div id="red"></div>
+
+<body>
+    <h1 id="centertext">Rotate your phone sideways and click the button</h1>
+
+    <script>
+        card = ["Chicken", "Cow", "Frog", "Strawberry", "Watermelon", "Pear"];
+        var state;
+        var randomElement;
+        
+        function handlePermission() {
+            if (typeof(DeviceMotionEvent.requestPermission) === 'function') {
+                DeviceMotionEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            window.addEventListener('devicemotion', handleMotionEvent);
+                        } else {
+                            document.getElementById("centertext").innerHTML = "Permission denied";
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                document.getElementById("centertext").innerHTML = "Accelerometer not supported";
+            }
+        }
+
+        function handleMotionEvent(event) {
+            document.getElementById("accelerometerpermissions").style.opacity = "0";
+            var x = event.accelerationIncludingGravity.x;
+            var y = event.accelerationIncludingGravity.y;
+            var z = event.accelerationIncludingGravity.z;
+            var r = event.rotationRate;
+            document.getElementById("centertext").innerHTML = html;
+            if (z >= 7) {
+                document.getElementById("centertext").innerHTML = "Correct";
+                document.getElementById("green").style.opacity = "1";
+            }
+            else if (z <= -7) {
+                document.getElementById("centertext").innerHTML = "Skip";
+                document.getElementById("red").style.opacity = "1";
+            }
+            else if (z > -7 && z < 7) {
+                document.getElementById("centertext").innerHTML = "Question";
+                document.getElementById("red").style.opacity = "0";
+                document.getElementById("green").style.opacity = "0";
+            }
+            else {
+                var html = "x: " + x + "<br>y: " + y + "<br>z: " + z;
+            }
+        }
+
+        // Check for permission on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof(DeviceMotionEvent.requestPermission) === 'function') {
+                DeviceMotionEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            window.addEventListener('devicemotion', handleMotionEvent);
+                        }
+                    })
+                    .catch(console.error);
+            }
+        });
+    </script>
+
+    <button id="accelerometerpermissions" onclick="handlePermission()">Request Accelerometer Permission</button>
+</body>
+
+</html>
